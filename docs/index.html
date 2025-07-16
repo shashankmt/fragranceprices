@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Cheapest Perfume Decants – Price per mL</title>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<link rel="stylesheet" href="https://unpkg.com/mvp.css">
+</head>
+<body>
+<h1>Perfume Decant Price-per-mL Tracker</h1>
+<div hx-get="decants.json" hx-trigger="load" hx-swap="innerHTML">
+  Loading...
+</div>
+
+<script type="text/html" id="row-template">
+<tr>
+  <td>{{brand}}</td>
+  <td>{{fragrance}}</td>
+  <td>{{size_ml}}</td>
+  <td>${{price_per_ml}}</td>
+  <td><a href="{{aff_url}}" target="_blank">Buy</a></td>
+</tr>
+</script>
+
+<script>
+fetch('decants.json').then(r=>r.json()).then(data=>{
+  const tmpl = document.getElementById('row-template').innerHTML;
+  const tbody = document.createElement('tbody');
+  data.sort((a,b)=>a.price_per_ml - b.price_per_ml)
+      .forEach(d=>{
+        tbody.innerHTML += tmpl.replace(/{{brand}}/g,d.brand)
+                               .replace(/{{fragrance}}/g,d.fragrance)
+                               .replace(/{{size_ml}}/g,d.size_ml)
+                               .replace(/{{price_per_ml}}/g,d.price_per_ml)
+                               .replace(/{{aff_url}}/g,d.aff_url);
+      });
+  document.querySelector('div').replaceWith(
+    Object.assign(document.createElement('table'),
+      {innerHTML:`<thead>
+        <tr><th>Brand</th><th>Fragrance</th><th>Size (ml)</th><th>$ / ml</th><th></th></tr>
+      </thead>`}).appendChild(tbody).parentNode);
+});
+</script>
+</body>
+</html>
